@@ -1,0 +1,17 @@
+cba (0.1b-1) unstable; urgency=low
+
+  * corrected bug on on_battery_power, now pmu is working
+
+ -- Marco Massari Calderone <MassariC@CS.UniBO.IT>  Thu, 08 Apr 2004 00:55:05 +0100
+ 
+cba (0.1-2) unstable; urgency=low
+
+  * added gpg signature
+
+ -- Marco Massari Calderone <MassariC@CS.UniBO.IT>  Mon, 17 Nov 2003 14:23:58 +0100
+ 
+cba (0.1-1) unstable; urgency=low
+
+  * Initial Debian version.
+
+ -- Marco Massari Calderone <MassariC@CS.UniBO.IT>  Sun, 19 Oct 2003 00:18:29 +0100

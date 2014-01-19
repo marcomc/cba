@@ -1,0 +1,175 @@
+#!/usr/bin/make -f
+# Generated automatically from debian/packages
+# by yada v0.27, of Sun, 22 Feb 2004
+
+DEB_HOST_ARCH        := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+DEB_HOST_GNU_CPU     := $(shell dpkg-architecture -qDEB_HOST_GNU_CPU)
+DEB_HOST_GNU_TYPE    := $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_HOST_GNU_SYSTEM  := $(shell dpkg-architecture -qDEB_HOST_GNU_SYSTEM)
+
+DEB_BUILD_ARCH       := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+DEB_BUILD_GNU_CPU    := $(shell dpkg-architecture -qDEB_BUILD_GNU_CPU)
+DEB_BUILD_GNU_TYPE   := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_BUILD_GNU_SYSTEM := $(shell dpkg-architecture -qDEB_BUILD_GNU_SYSTEM)
+
+VERSION:=$(shell LC_ALL=C dpkg-parsechangelog | sed -ne 's/^Version: *\([^2]*\)/\1/p')
+
+SHELL=/bin/bash
+
+.PHONY: default
+default:
+	@echo "Specify a target:"; \
+	echo " build              compile the package"; \
+	echo " build-arch         compile the architecture-dependent package"; \
+	echo " build-indep        compile the architecture-independent package"; \
+	echo " binary             make all binary packages"; \
+	echo " binary-arch        make all architecture-dependent binary packages"; \
+	echo " binary-indep       make all architecture-independent binary packages"; \
+	echo " clean              clean up the source package"; \
+	echo; \
+	echo " clean-install-tree clean up only under debian/"; \
+	echo
+
+# Build the package and prepare the install tree
+
+.PHONY: build-only build
+build-only: debian/build-stamp
+build: build-only
+
+.PHONY: build-arch-only build-arch
+build-arch-only: debian/build-arch-stamp
+build-arch: build-arch-only
+
+.PHONY: build-indep-only build-indep
+build-indep-only: debian/build-indep-stamp
+build-indep: build-indep-only
+
+# Make sure these rules and the control file are up-to-date
+
+.PHONY: rules control templates
+rules: debian/rules
+debian/rules: $(shell which yada) debian/packages-tmp
+	yada rebuild rules
+
+control: debian/control
+debian/control: $(shell which yada) debian/packages-tmp
+	yada rebuild control
+
+templates: debian/templates
+debian/templates: $(shell which yada) debian/packages-tmp
+	yada rebuild templates
+
+debian/build-stamp: debian/build-arch-stamp debian/build-indep-stamp
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	touch debian/build-stamp
+
+debian/build-arch-stamp:
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	touch debian/build-arch-stamp
+
+debian/build-indep-stamp:
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	touch debian/build-indep-stamp
+
+.PHONY: install-tree
+install-tree: install-tree-any
+install-tree-any: \
+	debian/tmp-cba/DEBIAN/control
+
+debian/tmp-cba/DEBIAN/control: debian/build-arch-stamp debian/control
+	rm -rf debian/tmp-cba
+	umask 022 && install -d debian/tmp-cba/DEBIAN
+	install -d debian/tmp-cba/usr/share/doc/cba
+	umask 022; yada generate copyright \
+	  > debian/tmp-cba/usr/share/doc/cba/copyright
+	install -m 644 -p debian/changelog \
+	  debian/tmp-cba/usr/share/doc/cba/changelog
+	@umask 022 \
+	  && export pwd="$$(pwd)" \
+	  && export ROOT="$$(pwd)/debian/tmp-cba" \
+	  && export TMPROOT="$$(pwd)/debian/tmp" \
+	  && export CONTROL="$$(pwd)/debian/tmp-cba/DEBIAN" \
+	  && export PACKAGE="cba" \
+	  && export SOURCE="cba" \
+	  && export VERSION="$(VERSION)" \
+	  && export DEB_HOST_GNU_CPU="$(DEB_HOST_GNU_CPU)" \
+	  && export DEB_HOST_GNU_TYPE="$(DEB_HOST_GNU_TYPE)" \
+	  && export DEB_HOST_GNU_SYSTEM="$(DEB_HOST_GNU_SYSTEM)" \
+	  && export DEB_BUILD_GNU_CPU="$(DEB_BUILD_GNU_CPU)" \
+	  && export DEB_BUILD_GNU_TYPE="$(DEB_BUILD_GNU_TYPE)" \
+	  && export DEB_BUILD_GNU_SYSTEM="$(DEB_BUILD_GNU_SYSTEM)" && (\
+	echo -E 'eval "yada () { perl $$(which yada) \"\$$@\"; }"; set -e; set -v';\
+	echo -E 'yada copy -script whichpower';\
+	echo -E 'yada copy -script on_battery_power';\
+	echo -E 'yada copy -script battery_status';\
+	echo -E 'yada copy -man DOCS/*.1';\
+	echo -E 'yada copy -doc DOCS/GPL';\
+	echo -E 'yada copy -doc DOCS/TODO*') | /bin/sh
+	@umask 022 \
+	  && export pwd="$$(pwd)" \
+	  && export ROOT="$$(pwd)/debian/tmp-cba" \
+	  && export TMPROOT="$$(pwd)/debian/tmp" \
+	  && export CONTROL="$$(pwd)/debian/tmp-cba/DEBIAN" \
+	  && export PACKAGE="cba" \
+	  && export SOURCE="cba" \
+	  && export VERSION="$(VERSION)" && (\
+	echo -E 'eval "yada () { perl $$(which yada) \"\$$@\"; }"; set -e; set -v';\
+	echo -E 'yada perl';\
+	echo -E 'yada python';\
+	echo -E 'yada strip';\
+	echo -E 'yada shlibdeps') | /bin/sh
+	yada compress cba
+	yada generate maintscripts cba
+	find debian/tmp-cba -type f -print \
+	  | sed -n 's/^debian\/tmp-cba\(\/etc\/.*\)$$/\1/p' \
+	  > debian/tmp-cba/DEBIAN/conffiles
+	if test ! -s debian/tmp-cba/DEBIAN/conffiles; then rm -f debian/tmp-cba/DEBIAN/conffiles; fi
+	yada rebuild control
+	yada generate substvars cba
+	umask 022 && dpkg-gencontrol -isp -pcba -Pdebian/tmp-cba
+
+# Build package files
+
+.PHONY: binary binary-arch binary-indep
+binary: binary-arch binary-indep
+binary-arch: binary-arch-any
+
+.PHONY: binary-arch-any
+binary-arch-any: \
+	binary-package-cba
+binary-indep:
+
+.PHONY: binary-package-cba
+binary-package-cba: check-root debian/tmp-cba/DEBIAN/control
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	chown -R 0.0 debian/tmp-cba
+	chmod -R u=rwX,go=rX debian/tmp-cba
+	@if [ -d debian/tmp-cba/usr/doc/cba ]; then \
+	  echo "*** Yada warning: /usr/doc/cba should be /usr/share/doc/cba";\
+	fi
+	dpkg-deb --build debian/tmp-cba ..
+
+.PHONY: check-root
+check-root:
+	@[ `id -u` = 0 ] || (echo "You must be root to do this!"; false)
+
+debian/packages-tmp: debian/packages 
+	yada rebuild packages
+
+## Clean up afterwards
+
+.PHONY: clean clean-install-tree clean-build
+
+clean: clean-install-tree clean-build debian/control debian/rules
+	rm -f debian/packages-tmp debian/packages-tmp-new debian/packages-tmp-include
+
+clean-build:
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	rm -f debian/build-stamp debian/build-arch-stamp debian/build-indep-stamp
+	yada unpatch
+	rm -rf debian/tmp
+
+clean-install-tree: debian/rules
+	@[ -f $(shell which yada) -a -f debian/rules ]
+	rm -f debian/install-tree-stamp
+	rm -rf debian/tmp-* debian/files* debian/substvars debian/shlibs.local debian/ucf

@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+#
+#
+# battery_status is script of CBA "CBA Battery Available" collection
+#
+# Copyright 2003 Marco Massari Calderone <M.Calderone@CS.UniBO.IT>
+#
+# --------------------------------------------------------------------------
+# - This script is free software; you can redistribute it and/or modify it -
+# - under the terms of the GNU General Public License as published by the  -
+# - Free Software Foundation; either version 2, or (at your option) any    -
+# - later version.                                                         -
+# -                                                                        -
+# - This script is distributed in the hope that it will be useful, but     -
+# - WITHOUT ANY WARRANTY; without even the implied warranty of             -
+# - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU      -
+# - General Public License for more details.                               -
+# --------------------------------------------------------------------------
+#
+# return values:
+# 255 -- not determinable status
+# output indicates percentage values of the battery charge
+#
+POWER=$(whichpower; echo $?)
+case $POWER in 
+      
+    #APM
+    "0")
+    cat /proc/apm | cut -f7 -d" " | tr -d [:punct:]
+    exit 1;
+    ;;
+
+    #ACPI
+    "1")
+    BATTERY=/proc/acpi/battery
+    for FN in $BATTERY/*; do
+        if [ -d "${FN}" ]; then
+            if [ -r "${FN}/state" ]; then
+                SINGLE_REMAINING=$(grep remaining "${FN}/state" | tr -d '[:alpha:][:space:][:punct:]')
+                TOTAL_REMAINING=$(($TOTAL_REMAINING + SINGLE_REMAINING))
+            elif [ -r "${FN}/status" ]; then
+                #no informatio for now
+                echo "NOT YET IMPLEMENTED"
+                exit 3 
+            fi          
+            SINGLE_CAPACITY=$(grep "design capacity:" "${FN}/info" | tr -d '[:alpha:][:space:][:punct:]')
+            #verificare che info sia uguale per tutti
+            TOTAL_CAPACITY=$(($TOTAL_CAPACITY + $SINGLE_CAPACITY))
+        fi
+    done
+    PERCENTAGE=$(($TOTAL_REMAINING / $(($TOTAL_CAPACITY / 100)) )) && echo $PERCENTAGE && exit 0 
+    exit 1;
+    ;;
+    
+    #PMU not yet tested on a real machine (only in simulation)
+    "2")     BATTERY=/proc/pmu
+    for FN in $BATTERY/battery_*; do 
+    #it sum capacity from ALL batteries of the system
+        if [ -r "${FN}" ]; then
+            SINGLE_CHARGE=$(grep "charge     :" "${FN}" | tr -d '[:alpha:][:space:][:punct:]')
+            TOTAL_CHARGE=$(($TOTAL_CHARGE + $SINGLE_CHARGE))
+            SINGLE_MAX_CHARGE=$(grep "max_charge" "${FN}" | tr -d '[:alpha:][:space:][:punct:]')
+            TOTAL_MAX_CHARGE=$(($TOTAL_MAX_CHARGE + $SINGLE_MAX_CHARGE))
+        fi
+    done
+    PERCENTAGE=$(($TOTAL_CHARGE / $(($TOTAL_MAX_CHARGE / 100)) )) && echo $PERCENTAGE && exit 0
+    exit 1;
+    ;;
+esac
+echo ciao
+exit 255

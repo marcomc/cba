@@ -1,0 +1,4 @@
+
+
+- verify impostation if we have /proc/acpi/battery/BAT?/status instead of state
+- write good man files

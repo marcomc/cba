@@ -1,0 +1,11 @@
+d3f09b9fa3c8efff0d4b5234ccc6530e  usr/share/doc/cba/copyright
+d2ce1c2d2652e59741c1149d4b393861  usr/share/doc/cba/GPL.gz
+6f2e53cca09c69ce3b63aa537c7af13b  usr/share/doc/cba/TODO
+cc5a001165ec43242143173644efeea5  usr/share/doc/cba/TODO.Debian
+5d4bc208dd76af163340d831e3ee02a6  usr/share/doc/cba/changelog.gz
+4a4dd3598707603b3f76a2378a4504aa  usr/share/man/man1/whichpower.1.gz
+4a4dd3598707603b3f76a2378a4504aa  usr/share/man/man1/battery_status.1.gz
+4a4dd3598707603b3f76a2378a4504aa  usr/share/man/man1/on_battery_power.1.gz
+e5141c4523288bed0c79fa2351258df5  usr/bin/whichpower
+dd485bc3d8cbe3886169ba7362c6faeb  usr/bin/on_battery_power
+b22a89823e06b19094ed9e5e50994294  usr/bin/battery_status

@@ -1,0 +1,12 @@
+Package: cba
+Version: 0.1b-1
+Section: admin
+Priority: extra
+Architecture: powerpc
+Depends: coreutils
+Installed-Size: 88
+Origin: debian
+Maintainer: Marco Massari Calderone <MassariC@CS.UniBO.IT>
+Description: Scripts for recognization of power management subsystem and battery status
+ Collection of scripts that recognize the power management subsystem,
+ give tha current status of the batteries if they are present

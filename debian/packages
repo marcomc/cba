@@ -1,0 +1,27 @@
+## debian/packages for cba
+## Customised for cba by Marco Massari Calderone 
+
+Source: cba
+Section: admin 
+Priority: extra
+Maintainer: Marco Massari Calderone <MassariC@CS.UniBO.IT> 
+Standards-Version: 3.5.9
+Description: Scripts for recognization of power management subsystem and battery status 
+Origin: debian
+Build-Depends: yada
+Copyright: GPL
+ Copyright 2003 Marco Massari Calderone
+
+Package: cba
+Architecture: any
+Depends: coreutils 
+Description: Scripts for recognization of power management subsystem and battery status 
+ Collection of scripts that recognize the power management subsystem, 
+ give tha current status of the batteries if they are present
+Install: sh
+ yada copy -script whichpower
+ yada copy -script on_battery_power
+ yada copy -script battery_status
+ yada copy -man DOCS/*.1
+ yada copy -doc DOCS/GPL
+ yada copy -doc DOCS/TODO*

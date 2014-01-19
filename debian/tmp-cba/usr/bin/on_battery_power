@@ -1,0 +1,77 @@
+#!/bin/sh
+# this script is a BANAL modification of the script "on_ac_power" from  powermgmt-base.
+#
+# on_ac_power was written by Rik Faith and Avery Pennarun <apenwarr@debian.org>
+# and modified by Thomas Hood <jdthood@yahoo.co.uk>
+# 
+# on_battary_power is a script of CBA "CBA Battery Available" collection
+# Copyright 2003 Marco Massari Calderone <M.Calderone@CS.UniBO.IT>
+#
+# --------------------------------------------------------------------------
+# - This script is free software; you can redistribute it and/or modify it -
+# - under the terms of the GNU General Public License as published by the  -
+# - Free Software Foundation; either version 2, or (at your option) any    -
+# - later version.                                                         -
+# -                                                                        -
+# - This script is distributed in the hope that it will be useful, but     -
+# - WITHOUT ANY WARRANTY; without even the implied warranty of             -
+# - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU      -
+# - General Public License for more details.                               -
+# --------------------------------------------------------------------------
+#
+# Returns 0 (true) if  battery is present
+#         1 (false) if any battery is present
+#         255 (false) if can't tell
+# ACPI
+# This algorithm is complicated by the possibility of multiple batteries.
+# We scan the battery directory looking for units
+# that have known states.  If any unit is on-line, we return 0.  If
+# no batterie are on-line but one or more are off-line, we return 1.
+#
+POWER=$(whichpower; echo $?)
+set -e
+
+ACPI_BATTERY=/proc/acpi/battery
+if [ $POWER  -eq 1 ] && [ -d $ACPI_BATTERY ]; then
+    OFF_LINE_P=no
+    for FN in $ACPI_BATTERY/*; do
+	if [ -d "${FN}" ]; then
+	    if [ -r "${FN}/state" ]; then
+            grep present "${FN}/state" | grep -q yes && exit 0 
+		    grep present "${FN}/state" | grep -q no && OFF_LINE_P=yes
+	    elif [ -r "${FN}/status" ]; then
+		    grep present "${FN}/status" | grep -q yes && exit 0
+		    grep present "${FN}/status" | grep -q no && OFF_LINE_P=yes
+	    fi
+	fi
+    done
+    [ "${OFF_LINE_P}" = "yes" ] && exit 1
+fi
+
+# APM
+# $7="-1%" >>>battery is not present
+if [ $POWER -eq 0 ] && [ -r /proc/apm ]; then
+    exec awk </proc/apm '
+	BEGIN { ret = 255 }
+	/^[0-9.a-zA-Z]* [0-9.]* 0x.. 0x../ {
+		if ($7 == "-1%") { ret = 1; exit }
+		else { ret = 0; exit }
+	}
+	END { exit ret }
+    '
+fi
+
+# PMU #this is for PPC  # UNTESTED yet
+# Battery count.*?# indicate the number of battery installed
+if [ $POWER -eq 2 ] && [ -r /proc/pmu/info ]; then
+    exec awk </proc/pmu/info '
+	BEGIN { ret = 255 }
+	/^Battery count.*0$/ { ret = 1; exit }
+	/^Battery count.*1$/ { ret = 0; exit }
+	/^Battery count.*2$/ { ret = 0; exit }
+	/^Battery count.*3$/ { ret = 0; exit }
+	END { exit ret }
+    '
+fi
+# nothing is available
+exit 255
